@@ -2,7 +2,7 @@ name: 'kpenfound'
 description: 'Multiplatform action'
 author: 'kpenfound'
 inputs:
-  path:
+  script:
     required: true
     description: 'path to a python file'
 outputs:
