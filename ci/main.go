@@ -68,17 +68,15 @@ func build(ctx context.Context) error {
 		built := client.Host().Directory(".")
 		ghcli := fmt.Sprintf("https://github.com/cli/cli/releases/download/v2.20.0/gh_2.20.0_linux_%s.tar.gz", runtime.GOARCH)
 		ghcliPath := fmt.Sprintf("/gh/gh_2.20.0_linux_%s/bin/gh", runtime.GOARCH)
-		//releaseCommand := fmt.Sprintf("'%s release create %s --generate-notes /build/*'", ghcliPath, tag)
 
 		alpine := client.Container().
 			From("cimg/base:2021.04").
-			WithMountedDirectory("/src", built).
-			WithWorkdir("/gh").
-			WithEnvVariable("GH_TOKEN", os.Getenv("GH_ELEVATED_TOKEN")).
+			WithWorkdir("/gh"). // Install github cli
 			WithExec([]string{"curl", "-L", "-o", "ghcli.tar.gz", ghcli}).
 			WithExec([]string{"tar", "-xvf", "ghcli.tar.gz"}).
-			WithExec([]string{"file", ghcliPath}).
-			WithWorkdir("/src").
+			WithMountedDirectory("/src", built).
+			WithWorkdir("/src"). // Create github release
+			WithEnvVariable("GH_TOKEN", os.Getenv("GH_ELEVATED_TOKEN")).
 			WithExec(append([]string{ghcliPath, "release", "create", tag, "--generate-notes"}, binaries...))
 		out, err := alpine.Stdout(ctx)
 		fmt.Println(out)

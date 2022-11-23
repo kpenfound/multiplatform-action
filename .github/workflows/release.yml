@@ -16,5 +16,5 @@ jobs:
       - name: Dagger release
         env:
           RELEASE: true
-          GH_ELEVATED_TOKEN: ${{ secrets.GH_EVELATED_TOKEN }}
+          GH_ELEVATED_TOKEN: ${{ secrets.GH_ELEVATED_TOKEN }}
         run: go run ci/main.go
