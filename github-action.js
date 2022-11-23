@@ -1,6 +1,6 @@
-import * as core from '@actions/core'
-import * as os from 'os'
-import * as cp from 'child_process'
+const core = require('@actions/core')
+const os = require('os')
+const cp = require('child_process')
 
 async function run() {
   try {
@@ -19,7 +19,7 @@ async function run() {
     }
 
     const goBinary = `${__dirname}/build/action_${goos}_${goarch}`
-    cp.childProcess.spawnSync(goBinary, { stdio: 'inherit' })
+    const out = cp.spawnSync(goBinary, { stdio: 'inherit' })
     core.setOutput('stdout', new Date().toTimeString())
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
