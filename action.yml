@@ -13,3 +13,5 @@ runs:
   steps:
     - run: ./src/scripts/action.sh
       shell: bash
+      env:
+        INPUT_SCRIPT: ${{ inputs.script }}
