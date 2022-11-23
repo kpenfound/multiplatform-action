@@ -11,5 +11,5 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - run: ./scripts/action.sh
+    - run: ./src/scripts/action.sh
       shell: bash
