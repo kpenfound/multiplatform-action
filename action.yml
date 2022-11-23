@@ -9,5 +9,6 @@ outputs:
   stdout:
     description: 'stdout from the executed python file'
 runs:
-  using: 'node16'
-  main: 'github-action.js'
+  using: "composite"
+  steps:
+    - run: ./scripts/action.sh

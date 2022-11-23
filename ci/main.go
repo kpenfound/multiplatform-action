@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"runtime"
 
 	"dagger.io/dagger"
 )
@@ -56,5 +57,27 @@ func build(ctx context.Context) error {
 		}
 	}
 	_, err = outputDirectory.Export(ctx, ".")
-	return err
+	if err != nil {
+		return err
+	}
+
+	if os.Getenv("RELEASE") == "true" {
+		tag := os.Getenv("GITHUB_REF_NAME")
+		buildDir := client.Host().Directory("build")
+		ghcli := fmt.Sprintf("https://github.com/cli/cli/releases/download/v2.20.0/gh_2.20.0_linux_%s.tar.gz", runtime.GOARCH)
+		ghcliPath := fmt.Sprintf("gh_2.20.0_linux_%s/bin/gh", runtime.GOARCH)
+
+		alpine := client.Container().
+			From("alpine").
+			WithExec([]string{"apk", "add", "curl"}). // Download github cli
+			WithExec([]string{"curl", "-L", "-o", "ghcli.tar.gz", ghcli}).
+			WithExec([]string{"tar", "-xvf", "ghcli.tar.gz"}).
+			WithMountedDirectory("/build", buildDir).
+			WithEnvVariable("GH_TOKEN", os.Getenv("GH_ELEVATED_TOKEN")). // create github release
+			WithExec([]string{ghcliPath, "release", "create", tag, "/build/*"})
+		_, err := alpine.ExitCode(ctx)
+		return err
+	}
+	
+	return nil
 }
