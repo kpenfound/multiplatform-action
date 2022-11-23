@@ -1,0 +1,7 @@
+version: 2.1
+
+description: |
+  Run a python script
+display:
+  source_url: https://github.com/kpenfound/typescript-multiplatform-action
+  home_url: https://github.com/kpenfound/typescript-multiplatform-action

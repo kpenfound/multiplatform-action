@@ -1,0 +1,13 @@
+description: "Run a python script"
+
+parameters:
+  script:
+    description: Python script to run
+    default: test.py
+    type: string
+steps:
+  - run:
+      name: Running Python Script
+      environment:
+        INPUT_SCRIPT: <<parameters.script>>
+      command: <<include(scripts/index.js)>>

@@ -1,4 +1,4 @@
-import {run} from '../src/main'
+import {run} from '../github-action.mjs'
 import {expect, test} from '@jest/globals'
 
 test('run', async () => {
