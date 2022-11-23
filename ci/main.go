@@ -37,6 +37,7 @@ func build(ctx context.Context) error {
   )
 
 	outputDirectory := client.Directory()
+	binaries := []string{}
 
 	golang := client.Container().
 		From(buildImage).
@@ -54,6 +55,7 @@ func build(ctx context.Context) error {
 				WithExec([]string{"go", "build", "-o", bin})
 
 			outputDirectory = outputDirectory.WithFile(bin, build.File(bin))
+			binaries = append(binaries, bin)
 		}
 	}
 	_, err = outputDirectory.Export(ctx, ".")
@@ -63,19 +65,23 @@ func build(ctx context.Context) error {
 
 	if os.Getenv("RELEASE") == "true" {
 		tag := os.Getenv("GITHUB_REF_NAME")
-		buildDir := client.Host().Directory("build")
+		built := client.Host().Directory(".")
 		ghcli := fmt.Sprintf("https://github.com/cli/cli/releases/download/v2.20.0/gh_2.20.0_linux_%s.tar.gz", runtime.GOARCH)
-		ghcliPath := fmt.Sprintf("gh_2.20.0_linux_%s/bin/gh", runtime.GOARCH)
+		ghcliPath := fmt.Sprintf("/gh/gh_2.20.0_linux_%s/bin/gh", runtime.GOARCH)
+		//releaseCommand := fmt.Sprintf("'%s release create %s --generate-notes /build/*'", ghcliPath, tag)
 
 		alpine := client.Container().
-			From("alpine").
-			WithExec([]string{"apk", "add", "curl"}). // Download github cli
+			From("cimg/base:2021.04").
+			WithMountedDirectory("/src", built).
+			WithWorkdir("/gh").
+			WithEnvVariable("GH_TOKEN", os.Getenv("GH_ELEVATED_TOKEN")).
 			WithExec([]string{"curl", "-L", "-o", "ghcli.tar.gz", ghcli}).
 			WithExec([]string{"tar", "-xvf", "ghcli.tar.gz"}).
-			WithMountedDirectory("/build", buildDir).
-			WithEnvVariable("GH_TOKEN", os.Getenv("GH_ELEVATED_TOKEN")). // create github release
-			WithExec([]string{ghcliPath, "release", "create", tag, "/build/*"})
-		_, err := alpine.ExitCode(ctx)
+			WithExec([]string{"file", ghcliPath}).
+			WithWorkdir("/src").
+			WithExec(append([]string{ghcliPath, "release", "create", tag, "--generate-notes"}, binaries...))
+		out, err := alpine.Stdout(ctx)
+		fmt.Println(out)
 		return err
 	}
 	
