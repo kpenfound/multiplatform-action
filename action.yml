@@ -12,3 +12,4 @@ runs:
   using: "composite"
   steps:
     - run: ./scripts/action.sh
+      shell: bash
