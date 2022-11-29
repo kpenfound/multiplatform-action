@@ -20,16 +20,16 @@ workflows:
       - shellcheck/check:
           filters: *filters
       - orb-tools/publish:
-          orb-name: <namespace>/<orb-name>
-          vcs-type: << pipeline.project.type >>
+          orb-name: kpenfound/multiplatform-action
+          vcs-type: github
           requires:
             [orb-tools/lint, orb-tools/review, orb-tools/pack, shellcheck/check]
           # Use a context to hold your publishing token.
-          context: <publishing-context>
+          context: orb-publishing
           filters: *filters
       # Triggers the next workflow in the Orb Development Kit.
       - orb-tools/continue:
           pipeline-number: << pipeline.number >>
-          vcs-type: << pipeline.project.type >>
+          vcs-type: github
           requires: [orb-tools/publish]
           filters: *filters
