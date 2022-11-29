@@ -11,7 +11,7 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - run: ./src/scripts/action.sh
+    - run: ${{ github.action_path }}/src/scripts/action.sh
       shell: bash
       env:
         INPUT_SCRIPT: ${{ inputs.script }}
