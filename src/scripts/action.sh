@@ -12,6 +12,6 @@ LATEST_TAG=$(echo "$LATEST" | jq -r '.tag_name')
 echo "Found version $LATEST_TAG"
 LATEST_URL=$(echo "$LATEST" | jq -r ".assets[] | select(.name | contains(\"linux_$ARCH\")) | .url") 
 echo "Downloading curl $LATEST_TAG from $USER"
-curl -vLJ -o action -H 'Accept: application/octet-stream' "$LATEST_URL"
+curl -sL -o action -H 'Accept: application/octet-stream' "$LATEST_URL"
 chmod +x action
 ./action
