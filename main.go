@@ -27,10 +27,20 @@ func main() {
 		dagger.HostDirectoryOpts{ Include: []string{script}},
   )
 
+	ci := "local"
+	if os.Getenv("GITHUB_ACTIONS") == "true" {
+		ci = "github"
+	}
+
+	if os.Getenv("CIRCLECI") == "true" {
+		ci = "circleci"
+	}
+
 	py := client.Container().
 	From(pythonimg).
 	WithMountedDirectory("/src", scriptDir).
 	WithWorkdir("/src").
+	WithEnvVariable("CI_PLATFORM", ci).
 	WithExec([]string{"python", script})
 
 	out, err := py.Stdout(ctx)
